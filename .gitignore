@@ -6,3 +6,6 @@ IEEE-ZSB/
 
 # Ignore vscode directory
 .vscode/
+
+# Ignore databases
+*.db

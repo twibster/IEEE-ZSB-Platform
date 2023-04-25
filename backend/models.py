@@ -1,35 +1,30 @@
-import bcrypt as bc
+import bcrypt
 from typing import Optional
 from backend.validators import  Chapters, Positions, Departments, datetime
+from sqlalchemy import String, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-class User:
-    id: Optional[int]
-    first_name: str 
-    last_name: str
-    birthdate: datetime
-    email: str
-    username: str
-    password: str 
-    chapter: Optional[Chapters]
-    department: Optional[Departments]
-    position: Positions
+class Base(DeclarativeBase):
+    pass
+
+class User(Base):
+    __tablename__ = "Users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    first_name: Mapped[str] = mapped_column(String(20))
+    last_name: Mapped[str] = mapped_column(String(20))
+    birthdate: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    email: Mapped[str] = mapped_column(String(255), unique=True)
+    username: Mapped[str] = mapped_column(String(20), unique=True)
+    password: Mapped[str] = mapped_column(String(255)) 
+    chapter: Mapped[Optional[Chapters]] = mapped_column(String(30))
+    department: Mapped[Optional[Departments]] =mapped_column(String(30))
+    position: Mapped[Positions] =mapped_column(String(30))
 
     def set_password(self, password) -> None:
-        hashed_pass = bc.hashpw(password.encode("utf-8"),bc.gensalt())
-        self.password = hashed_pass.decode("utf-8")
+        bytePassword = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
+        self.password = bytePassword.decode("utf-8")
         return
     
     def check_password(self, password) -> bool:
-        return bc.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
-    
-    def __init__(self, id, first_name, last_name, birthdate,email, username, chapter, department, position, password=None) -> None:
-        self.id= id
-        self.first_name= first_name
-        self.last_name= last_name
-        self.birthdate= birthdate
-        self.email= email
-        self.username= username
-        self.chapter= chapter
-        self.department= department
-        self.position= position
-        return
+        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
