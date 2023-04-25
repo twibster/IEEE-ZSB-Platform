@@ -27,7 +27,6 @@ class Departments(str, Enum):
 
 
 class userValidator(BaseModel):
-    id: Optional[int] = Field(gt=0)
     first_name: str = Field(min_length=2, max_length=20)
     last_name: str = Field(min_length=2, max_length=20)
     birthdate: datetime
@@ -41,7 +40,6 @@ class userValidator(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "id": 1,
                 "first_name": "John",
                 "last_name": "Jacky",
                 "birthdate": "2023-04-24T22:01:32.904Z",
@@ -65,4 +63,25 @@ class loginValidator(BaseModel):
                 "username": "jsxht",
                 "password": "string"
             }
+        }
+
+
+class taskValidator(BaseModel):
+    title: str = Field(min_length=3, max_length=50)
+    department: Departments
+    content: str = Field(max_length=1000)
+    attachment: str
+    date_posted: datetime
+    deadline: datetime
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "title": "First task in AI",
+                "department": "ai",
+                "content": "look at the attached file",
+                "attachment": "I am an attached file dude",
+                "date_posted": "2023-04-25T19:52:28.327Z",
+                "deadline": "2023-06-25T19:52:28.327Z"
+                }
         }
