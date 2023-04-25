@@ -3,33 +3,36 @@ from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, EmailStr, Field, constr
 
+
 class Positions(str, Enum):
-    chairman = "chairman"
-    leader = "leader"
-    member = "member"
-    rookie = "rookie"
+    CHAIRMAN = "chairman"
+    LEADER = "leader"
+    MEMBER = "member"
+    ROOKIE = "rookie"
+
 
 class Chapters(str, Enum):
     RAS, PES, CS = "ras", "pes", "cs"
 
+
 class Departments(str, Enum):
-    EmbeddedSystems= "embedded systems"
+    ES = "embedded systems"
     AI = "ai"
     ROS = "ros"
-    mechanical ="mechanical"
-    mobile = "mobile"
-    web = "web"
-    power = "power"
-    distribution = "distribution"
+    MECHANICAL = "mechanical"
+    MOBILE = "mobile"
+    WEB = "web"
+    POWER = "power"
+    DISTRIBUTION = "distribution"
 
 
 class userValidator(BaseModel):
     id: Optional[int] = Field(gt=0)
-    first_name: str = Field(min_length = 2, max_length=20)
-    last_name: str = Field(min_length = 2, max_length=20)
+    first_name: str = Field(min_length=2, max_length=20)
+    last_name: str = Field(min_length=2, max_length=20)
     birthdate: datetime
     email: EmailStr
-    username: constr(regex=r'^[a-zA-Z0-9_-]{3,16}$') # type: ignore
+    username: constr(regex=r'^[a-zA-Z0-9_-]{3,16}$')  # type: ignore
     password: str = Field(min_length=8)
     chapter: Optional[Chapters]
     department: Optional[Departments]
@@ -51,12 +54,13 @@ class userValidator(BaseModel):
             }
         }
 
+
 class loginValidator(BaseModel):
     username: str
     password: str
 
     class Config:
-        schema_extra={
+        schema_extra = {
             "example": {
                 "username": "jsxht",
                 "password": "string"
