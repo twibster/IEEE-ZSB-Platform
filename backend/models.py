@@ -24,12 +24,12 @@ class User(Base):
     position: Mapped[Positions] = mapped_column(String(30))
     tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner")
 
-    def setPassword(self, password) -> None:
+    def set_password(self, password) -> None:
         bytePassword = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
         self.password = bytePassword.decode("utf-8")
         return
 
-    def checkPassword(self, password) -> bool:
+    def check_password(self, password) -> bool:
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
     def __repr__(self):

@@ -1,10 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from backend import db
 from backend.models import User
-from backend.functions import decodeToken
+from backend.functions import decode_token
 
 
-async def getCurrentUser(token: str) -> User:
+async def get_current_user(token: str) -> User:
     """Retrieves the current user object based on the provided token.
 
     Args:
@@ -16,7 +16,7 @@ async def getCurrentUser(token: str) -> User:
     Raises:
         HTTPException: If the token is invalid or expired, or if the user cannot be found.
     """
-    payload = decodeToken(token)
+    payload = decode_token(token)
     if payload:
         user = db.query(User).filter_by(id=payload.get("id")).first()
         if user:
@@ -25,7 +25,7 @@ async def getCurrentUser(token: str) -> User:
     raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="invalid payload")
 
 
-class roleChecker:
+class RoleChecker:
     """A class used to check a user's role and grant access to a specific endpoint.
 
     Attributes:
@@ -39,7 +39,7 @@ class roleChecker:
     def __init__(self, requiredRole):
         self.requiredRole: str = requiredRole
 
-    def __call__(self, user: User = Depends(getCurrentUser)) -> User:
+    def __call__(self, user: User = Depends(get_current_user)) -> User:
         if self.requiredRole == user.position:
             return user
         raise HTTPException(status.HTTP_401_UNAUTHORIZED,

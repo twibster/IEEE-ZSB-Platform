@@ -8,7 +8,7 @@ ALOGRITHM = "HS256"
 EXPIRY = 30
 
 
-def createPayload(user: User) -> dict:
+def create_payload(user: User) -> dict:
     """Generate a payload containing the user ID, username, and role to be encoded as a JWT.
 
     Args:
@@ -28,7 +28,7 @@ def createPayload(user: User) -> dict:
     return payload
 
 
-def generateToken(payload: dict, expiry_duration: int = EXPIRY) -> str:
+def generate_token(payload: dict, expiry_duration: int = EXPIRY) -> str:
     """Generates a JSON Web Token (JWT) using the given payload and expiration duration.
 
     Args:
@@ -47,7 +47,7 @@ def generateToken(payload: dict, expiry_duration: int = EXPIRY) -> str:
     return encoded_jwt
 
 
-def decodeToken(token: str) -> Optional[dict]:
+def decode_token(token: str) -> Optional[dict]:
     """Decode a JSON Web Token (JWT) and return its payload as a dictionary.
 
     Args:

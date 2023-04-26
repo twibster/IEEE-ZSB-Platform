@@ -26,7 +26,7 @@ class Departments(str, Enum):
     DISTRIBUTION = "distribution"
 
 
-class userValidator(BaseModel):
+class UserValidator(BaseModel):
     """A Pydantic data model for validating user input.
 
     Attributes:
@@ -66,7 +66,7 @@ class userValidator(BaseModel):
         }
 
 
-class loginValidator(BaseModel):
+class LoginValidator(BaseModel):
     username: str
     password: str
 
@@ -79,7 +79,7 @@ class loginValidator(BaseModel):
         }
 
 
-class taskValidator(BaseModel):
+class TaskValidator(BaseModel):
     title: str = Field(min_length=3, max_length=50)
     department: Departments
     content: str = Field(max_length=1000)
