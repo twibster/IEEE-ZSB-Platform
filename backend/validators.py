@@ -27,6 +27,19 @@ class Departments(str, Enum):
 
 
 class userValidator(BaseModel):
+    """A Pydantic data model for validating user input.
+
+    Attributes:
+        first_name (str): The user's first name. Must be between 2 and 20 characters.
+        last_name (str): The user's last name. Must be between 2 and 20 characters.
+        birthdate (datetime): The user's birthdate.
+        email (EmailStr): The user's email address.
+        username (str): The user's desired username. Must be between 3 and 16 characters and only contain alphanumeric characters, hyphens, and underscores.
+        password (str): The user's desired password. Must be at least 8 characters long.
+        chapter (Optional[Chapters]): The user's chapter, if applicable.
+        department (Optional[Departments]): The user's department, if applicable.
+        position (Positions): The user's position within the organization.
+    """
     first_name: str = Field(min_length=2, max_length=20)
     last_name: str = Field(min_length=2, max_length=20)
     birthdate: datetime

@@ -5,6 +5,17 @@ from backend.functions import decodeToken
 
 
 async def getCurrentUser(token: str) -> User:
+    """Retrieves the current user object based on the provided token.
+
+    Args:
+        token (str): A string containing a JSON Web Token (JWT) for the user.
+
+    Returns:
+        User: A User object representing the current user.
+
+    Raises:
+        HTTPException: If the token is invalid or expired, or if the user cannot be found.
+    """
     payload = decodeToken(token)
     if payload:
         user = db.query(User).filter_by(id=payload.get("id")).first()
@@ -15,6 +26,16 @@ async def getCurrentUser(token: str) -> User:
 
 
 class roleChecker:
+    """A class used to check a user's role and grant access to a specific endpoint.
+
+    Attributes:
+        requiredRole (str): The required role for accessing an endpoint.
+
+    Methods:
+        __init__(self, requiredRole: str) -> None: Initializes the required role for the endpoint.
+        __call__(self, user: User = Depends(getCurrentUser)) -> User: Verifies that the user's
+            role matches the required role before granting access to an endpoint.
+    """
     def __init__(self, requiredRole):
         self.requiredRole: str = requiredRole
 
