@@ -1,5 +1,5 @@
 from typing import Optional, List
-from sqlalchemy import String, DateTime, ForeignKey
+from sqlalchemy import String, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Relationship
 from backend.validators import Chapters, Positions, Departments, datetime
 import bcrypt
@@ -21,9 +21,10 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(255)) 
     chapter: Mapped[Optional[Chapters]] = mapped_column(String(30))
     department: Mapped[Optional[Departments]] = mapped_column(String(30))
-    position: Mapped[Positions] = mapped_column(String(30))
+    position: Mapped["Position"] = Relationship(back_populates="users")
+    position_id: Mapped[int] = mapped_column(ForeignKey("positions.id"))
     tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner")
-
+    
     def set_password(self, password) -> None:
         bytePassword = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
         self.password = bytePassword.decode("utf-8")
@@ -33,7 +34,7 @@ class User(Base):
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
     def __repr__(self):
-        return f"User('{self.first_name}','{self.last_name}','{self.username}','{self.email}')"
+        return f"User('{self.first_name}','{self.last_name}','{self.username}','{self.email}','{self.department}','{self.position}')"
 
 
 class Task(Base):
@@ -50,5 +51,16 @@ class Task(Base):
     owner: Mapped[User] = Relationship("User", back_populates="tasks")
 
     def __repr__(self):
-        return f"Task('{self.id}','{self.title}','{self.content}','{self.attachment}',{self.date_posted}','{self.deadline}','{self.user_id}')"
- 
+        return f"Task('{self.id}','{self.title}','{self.content}','{self.attachment}',{self.date_posted}','{self.deadline}','{self.owner_id}')"
+
+
+class Position(Base):
+    __tablename__ = "positions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    position: Mapped[str] = mapped_column(unique=True)
+    permissions: Mapped[JSON] = mapped_column(JSON)
+    users: Mapped[List[User]] = Relationship(back_populates="position")
+
+    def __repr__(self):
+        return f"Position('{self.id}','{self.position}','{self.permissions}'"

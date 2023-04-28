@@ -23,7 +23,7 @@ def create_payload(user: User) -> dict:
     payload = {
         "id": user.id,
         "username": user.username,
-        "role": user.position
+        "role": user.position.position
     }
     return payload
 

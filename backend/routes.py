@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI, status, HTTPException
 from backend import db
 from backend.validators import UserValidator, LoginValidator, TaskValidator
-from backend.models import User, Task
+from backend.models import User, Task, Position
 from backend.functions import generate_token, create_payload
 from backend.dependencies import RoleChecker
 
@@ -25,7 +25,11 @@ async def register(request: UserValidator):
         ).first()
     if user:
         return "user already exists"
-    user = User(**request.dict())
+    request_dict = request.dict()
+    position = db.query(Position).filter_by(position=request_dict.get("position")).first()
+    request_dict.pop("position")
+    user = User(**request_dict)
+    user.position = position
     user.set_password(request.password)
     db.add(user)
     db.commit()
