@@ -50,5 +50,5 @@ class Task(Base):
     owner: Mapped[User] = Relationship("User", back_populates="tasks")
 
     def __repr__(self):
-        return f"Task('{self.id}','{self.title}','{self.content}','{self.attachment}',{self.date_posted}','{self.deadline}','{self.user_id}')"
+        return f"Task('{self.id}','{self.title}','{self.content}','{self.attachment}',{self.date_posted}','{self.deadline}')"
  

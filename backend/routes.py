@@ -3,7 +3,7 @@ from backend import db
 from backend.validators import UserValidator, LoginValidator, TaskValidator
 from backend.models import User, Task
 from backend.functions import generate_token, create_payload
-from backend.dependencies import RoleChecker
+from backend.dependencies import PermissionsChecker
 
 app = FastAPI()
 
@@ -14,7 +14,7 @@ async def home():
 
 
 @app.get("/users")
-async def users(_: User = Depends(RoleChecker("chairman"))):
+async def users(_: User = Depends(PermissionsChecker("view-user"))):
     return db.query(User).all()
 
 
@@ -45,17 +45,32 @@ async def login(request: LoginValidator):
 
 
 @app.delete("/delete_user/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: int, _:User = Depends(RoleChecker("chairman"))):
+async def delete_user(user_id: int, _:User = Depends(PermissionsChecker("delete-user"))):
     user = db.query(User).filter_by(id=user_id).first()
-    db.delete(user)
-    db.commit()
-    return
+    if user:
+        db.delete(user)
+        db.commit()
+    raise HTTPException(status.HTTP_404_NOT_FOUND)
 
 
 @app.post("/create_task", status_code=status.HTTP_201_CREATED)
-async def create_task(request: TaskValidator, user: User = Depends(RoleChecker("leader"))):
+async def create_task(request: TaskValidator, user: User = Depends(PermissionsChecker("create-task"))):
+    if request.department != user.department and user.position != 'chairman':
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You need to be from the same department as the task to create it")
     task = Task(**request.dict())
     task.owner = user
     db.add(task)
     db.commit()
     return
+
+
+@app.delete('/delete_task/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(task_id: int, user: User = Depends(PermissionsChecker("delete-task"))):
+    task = db.query(Task).filter_by(id=task_id).first()
+    if task:
+        if task.owner == user or user.position == "chairman":
+            db.delete(task)
+            db.commit()
+            return
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail='you do not have permission to delete this task')
+    raise HTTPException(status.HTTP_404_NOT_FOUND, detail="task not found")
