@@ -84,7 +84,7 @@ class TaskValidator(BaseModel):
     department: Departments
     content: str = Field(max_length=1000)
     attachment: str
-    date_posted: datetime
+    date_created: datetime
     deadline: datetime
 
     class Config:
@@ -94,7 +94,7 @@ class TaskValidator(BaseModel):
                 "department": "ai",
                 "content": "look at the attached file",
                 "attachment": "I am an attached file dude",
-                "date_posted": "2023-04-25T19:52:28.327Z",
+                "date_created": "2023-04-25T19:52:28.327Z",
                 "deadline": "2023-06-25T19:52:28.327Z"
                 }
         }

@@ -24,8 +24,8 @@ class User(Base):
     position: Mapped[Positions] = mapped_column(String(30))
     tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner")
 
-    def set_password(self, password) -> None:
-        bytePassword = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
+    def set_password(self, password: str) -> None:
+        bytePassword = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         self.password = bytePassword.decode("utf-8")
         return
 
@@ -44,11 +44,18 @@ class Task(Base):
     department: Mapped[str] = mapped_column(String(30))
     content: Mapped[str] = mapped_column(String(1000))
     attachment: Mapped[Optional[str]] = mapped_column(String(255))
-    date_posted: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow())
+    date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow())
     deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     owner: Mapped[User] = Relationship("User", back_populates="tasks")
 
+    def update(self, title: str, department: str, content: str, deadline: datetime, attachment: Optional[str] = None, **kwargs):
+        self.title = title
+        self.department = department
+        self.content = content
+        self.attachment = attachment
+        self.deadline = deadline
+
     def __repr__(self):
-        return f"Task('{self.id}','{self.title}','{self.content}','{self.attachment}',{self.date_posted}','{self.deadline}')"
+        return f"Task('{self.id}','{self.title}','{self.content}','{self.attachment}',{self.date_created}','{self.deadline}')"
  

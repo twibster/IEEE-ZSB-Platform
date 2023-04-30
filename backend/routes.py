@@ -1,4 +1,5 @@
 from fastapi import Depends, FastAPI, status, HTTPException
+from sqlalchemy import Update
 from backend import db
 from backend.validators import UserValidator, LoginValidator, TaskValidator
 from backend.models import User, Task
@@ -64,6 +65,24 @@ async def create_task(request: TaskValidator, user: User = Depends(PermissionsCh
     return
 
 
+@app.get("/tasks")
+async def get_tasks(_: User = Depends(PermissionsChecker("view-task"))):
+    return db.query(Task).all()
+
+         
+@app.put("/modify_task", status_code=status.HTTP_204_NO_CONTENT)
+async def modify_task(request: TaskValidator, user: User = Depends(PermissionsChecker("modify-task"))):
+    task = db.query(Task).filter((Task.date_created == request.date_created) & (Task.owner == user)).first()
+    if task:
+        if task.owner == user:
+            if request.department == user.department or user.position == "chairman":
+                task.update(**request.dict())
+                db.commit()
+                return
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="You do not have permission to change the department of the task")
+    raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="You must be the owner of the task to modify it")
+
+
 @app.delete('/delete_task/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(task_id: int, user: User = Depends(PermissionsChecker("delete-task"))):
     task = db.query(Task).filter_by(id=task_id).first()
@@ -74,3 +93,4 @@ async def delete_task(task_id: int, user: User = Depends(PermissionsChecker("del
             return
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail='you do not have permission to delete this task')
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail="task not found")
+

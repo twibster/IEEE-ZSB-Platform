@@ -8,8 +8,8 @@ Session = sessionmaker(bind=engine)
 db = Session()
 
 permissions = {
-    "chairman": ['view-task', 'create-task', 'delete-user', 'confirm-user', 'view-user','delete-task'],
-    "leader": ['view-task', 'create-task', 'delete-task'],
+    "chairman": ['view-task', 'create-task', 'modify-task', 'delete-task', 'delete-user', 'confirm-user', 'view-user'],
+    "leader": ['view-task', 'create-task', 'modify-task', 'delete-task'],
     "member": ['view-task', 'submit-task', 'excuse-task'],
     "rookie": ['view-task', 'submit-task', 'excuse-task']
 }
