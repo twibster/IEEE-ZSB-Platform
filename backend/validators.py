@@ -1,29 +1,9 @@
 from datetime import datetime
 from typing import Optional
-from enum import Enum
-from pydantic import BaseModel, EmailStr, Field, constr
-
-
-class Positions(str, Enum):
-    CHAIRMAN = "chairman"
-    LEADER = "leader"
-    MEMBER = "member"
-    ROOKIE = "rookie"
-
-
-class Chapters(str, Enum):
-    RAS, PES, CS = "ras", "pes", "cs"
-
-
-class Departments(str, Enum):
-    ES = "embedded systems"
-    AI = "ai"
-    ROS = "ros"
-    MECHANICAL = "mechanical"
-    MOBILE = "mobile"
-    WEB = "web"
-    POWER = "power"
-    DISTRIBUTION = "distribution"
+from pydantic import BaseModel, EmailStr, Field, constr, validator
+from backend import db
+from backend.models import User
+from backend.constants import Positions, Chapters, Departments
 
 
 class UserValidator(BaseModel):
@@ -40,15 +20,55 @@ class UserValidator(BaseModel):
         department (Optional[Departments]): The user's department, if applicable.
         position (Positions): The user's position within the organization.
     """
+    id: Optional[int] = Field(gt=0)
     first_name: str = Field(min_length=2, max_length=20)
     last_name: str = Field(min_length=2, max_length=20)
     birthdate: datetime
     email: EmailStr
     username: constr(regex=r'^[a-zA-Z0-9_-]{3,16}$')  # type: ignore
     password: str = Field(min_length=8)
-    chapter: Optional[Chapters]
-    department: Optional[Departments]
     position: Positions
+    chapter: Optional[Chapters] = None
+    department: Optional[Departments] = None
+
+    @validator("email")
+    def email_already_exists(cls, v) -> str:
+        user = db.query(User).filter_by(email=v).first()
+        if user:
+            raise ValueError("email is already in use")
+        return v
+    
+    @validator("username")
+    def username_already_exists(cls, v) -> str:
+        user = db.query(User).filter_by(username=v).first()
+        if user:
+            raise ValueError("username is already in use")
+        return v
+    
+    @validator("department", always=True)
+    def departmnet_logic_validator(cls, v, values) -> str:
+        position = values.get('position')
+        if position:
+            if position in [Positions.CHAIRMAN, Positions.ROOKIE]:
+                if v:
+                    raise ValueError(f"a department cannot be provided if your position is {position}")
+                return v
+            else:
+                if not v:
+                    raise ValueError(f"you must provide a department if your position is {position}")
+                return v
+        return v
+
+    @validator("chapter", always=True)
+    def chapter_logic_validator(cls, v, values) -> str:
+        position = values.get('position')
+        if position:
+            if position != Positions.CHAIRMAN:
+                if not v:
+                    raise ValueError(f"you must provide a chapter if the position is {position}")
+            return v
+        return v
+    
 
     class Config:
         schema_extra = {
@@ -80,10 +100,11 @@ class LoginValidator(BaseModel):
 
 
 class TaskValidator(BaseModel):
+    id: Optional[int] = Field(gt=0)
     title: str = Field(min_length=3, max_length=50)
     department: Departments
     content: str = Field(max_length=1000)
-    attachment: str
+    attachment: Optional[str]
     date_created: datetime
     deadline: datetime
 

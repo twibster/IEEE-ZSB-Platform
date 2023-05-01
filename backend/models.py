@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Optional, List
 from sqlalchemy import String, DateTime, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Relationship
-from backend.validators import Chapters, Positions, Departments, datetime
+from backend.constants import Chapters, Positions, Departments
 import bcrypt
 
 
@@ -22,7 +23,7 @@ class User(Base):
     chapter: Mapped[Optional[Chapters]] = mapped_column(String(30))
     department: Mapped[Optional[Departments]] = mapped_column(String(30))
     position: Mapped[Positions] = mapped_column(String(30))
-    tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner")
+    tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner", cascade="all, delete")
 
     def set_password(self, password: str) -> None:
         bytePassword = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -31,6 +32,17 @@ class User(Base):
 
     def check_password(self, password) -> bool:
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
+    
+    def update(self, first_name: str, last_name: str, birthdate: datetime, email: str, username: str, password: str, chapter: Optional[Chapters], department: Optional[Departments], position: Positions, **kwargs) -> None:
+        self.first_name = first_name
+        self.last_name = last_name
+        self.birthdate = birthdate
+        self.email = email
+        self.username = username
+        self.password = password
+        self.chapter = chapter
+        self.department = department
+        self.position = position
 
     def __repr__(self):
         return f"User('{self.first_name}','{self.last_name}','{self.username}','{self.email}')"
@@ -49,7 +61,7 @@ class Task(Base):
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     owner: Mapped[User] = Relationship("User", back_populates="tasks")
 
-    def update(self, title: str, department: str, content: str, deadline: datetime, attachment: Optional[str] = None, **kwargs):
+    def update(self, title: str, department: str, content: str, deadline: datetime, attachment: Optional[str] = None, **kwargs) -> None:
         self.title = title
         self.department = department
         self.content = content
