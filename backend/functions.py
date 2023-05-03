@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
-from backend.models import User
+from backend.database.models import User
 
 SECRET_KEY = "1jgRFeMmP2vlXWbzUxUlnbEey85meU4n"
 ALOGRITHM = "HS256"

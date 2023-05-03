@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, constr, validator
 from backend import db
-from backend.models import User
+from backend.database.models import User
 from backend.constants import Positions, Chapters, Departments
 
 
@@ -20,7 +20,7 @@ class UserValidator(BaseModel):
         department (Optional[Departments]): The user's department, if applicable.
         position (Positions): The user's position within the organization.
     """
-    id: Optional[int] = Field(gt=0)
+    id: Optional[int] = Field(gt=0) # must be passed in case of user modification
     first_name: str = Field(min_length=2, max_length=20)
     last_name: str = Field(min_length=2, max_length=20)
     birthdate: datetime
@@ -32,17 +32,19 @@ class UserValidator(BaseModel):
     department: Optional[Departments] = None
 
     @validator("email")
-    def email_already_exists(cls, v) -> str:
+    def email_already_exists(cls, v, values) -> str:
         user = db.query(User).filter_by(email=v).first()
         if user:
-            raise ValueError("email is already in use")
+            if values.get("id") != user.id:
+                raise ValueError("email is already in use")
         return v
     
     @validator("username")
-    def username_already_exists(cls, v) -> str:
+    def username_already_exists(cls, v, values) -> str:
         user = db.query(User).filter_by(username=v).first()
         if user:
-            raise ValueError("username is already in use")
+            if values.get("id") != user.id:
+                raise ValueError("username is already in use")
         return v
     
     @validator("department", always=True)

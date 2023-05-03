@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
-from backend import db, permissions
-from backend.models import User
+from backend import db
 from backend.functions import decode_token
+from backend.database.models import User
 
 
 async def get_current_user(token: str) -> User:
@@ -21,7 +21,7 @@ async def get_current_user(token: str) -> User:
         user = db.query(User).filter_by(id=payload.get("id")).first()
         if user:
             return user
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="user not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="user in the palyload is not found")
     raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="invalid or expired token")
 
 
@@ -40,7 +40,7 @@ class PermissionsChecker:
         self.required_permission: str = required_permission
 
     def __call__(self, user: User = Depends(get_current_user)) -> User:
-        if self.required_permission in permissions[user.position]:
+        if getattr(user.permissions, self.required_permission):
             return user
         raise HTTPException(status.HTTP_401_UNAUTHORIZED,
                             "you do not have permission for this request")

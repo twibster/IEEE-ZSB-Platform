@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI, status, HTTPException
 from backend import db
 from backend.validators import UserValidator, LoginValidator, TaskValidator
 from backend.constants import Positions
-from backend.models import User, Task
+from backend.database.models import User, Task
 from backend.functions import generate_token, create_payload
 from backend.dependencies import PermissionsChecker
 
@@ -15,7 +15,7 @@ async def home():
 
 
 @app.get("/users")
-async def users(_: User = Depends(PermissionsChecker("view-user"))):
+async def users(_: User = Depends(PermissionsChecker("view_user"))):
     return db.query(User).all()
 
 
@@ -41,16 +41,17 @@ async def login(request: LoginValidator):
 
 
 @app.delete("/delete_user/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: int, _:User = Depends(PermissionsChecker("delete-user"))):
+async def delete_user(user_id: int, _:User = Depends(PermissionsChecker("delete_user"))):
     user = db.query(User).filter_by(id=user_id).first()
-    if user:
+    if not user:
         db.delete(user)
         db.commit()
+        return
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail="user not found")
 
 
 @app.put("/modify_user/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def modify_user(user_id: int, request: UserValidator, user: User = Depends(PermissionsChecker("modify-user"))):
+async def modify_user(user_id: int, request: UserValidator, user: User = Depends(PermissionsChecker("modify_user"))):
     to_modify = db.query(User).filter_by(id=user_id).first()
     if to_modify:
         if to_modify == user:
@@ -62,7 +63,7 @@ async def modify_user(user_id: int, request: UserValidator, user: User = Depends
 
 
 @app.post("/create_task", status_code=status.HTTP_201_CREATED)
-async def create_task(request: TaskValidator, user: User = Depends(PermissionsChecker("create-task"))):
+async def create_task(request: TaskValidator, user: User = Depends(PermissionsChecker("create_task"))):
     if request.department != user.department and user.position != Positions.CHAIRMAN:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You need to be from the same department as the task to create it")
     task = Task(**request.dict())
@@ -73,12 +74,12 @@ async def create_task(request: TaskValidator, user: User = Depends(PermissionsCh
 
 
 @app.get("/tasks")
-async def get_tasks(_: User = Depends(PermissionsChecker("view-task"))):
+async def get_tasks(_: User = Depends(PermissionsChecker("view_task"))):
     return db.query(Task).all()
 
          
 @app.put("/modify_task/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def modify_task(task_id: int, request: TaskValidator, user: User = Depends(PermissionsChecker("modify-task"))):
+async def modify_task(task_id: int, request: TaskValidator, user: User = Depends(PermissionsChecker("modify_task"))):
     task = db.query(Task).filter_by(id=task_id).first()
     if task:
         if task.owner == user:
@@ -92,7 +93,7 @@ async def modify_task(task_id: int, request: TaskValidator, user: User = Depends
     
 
 @app.delete('/delete_task/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_task(task_id: int, user: User = Depends(PermissionsChecker("delete-task"))):
+async def delete_task(task_id: int, user: User = Depends(PermissionsChecker("delete_task"))):
     task = db.query(Task).filter_by(id=task_id).first()
     if task:
         if task.owner == user or user.position == Positions.CHAIRMAN:

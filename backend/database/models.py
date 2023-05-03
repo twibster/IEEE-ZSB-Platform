@@ -1,9 +1,9 @@
+import bcrypt
 from datetime import datetime
 from typing import Optional, List
 from sqlalchemy import String, DateTime, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Relationship
 from backend.constants import Chapters, Positions, Departments
-import bcrypt
 
 
 class Base(DeclarativeBase):
@@ -23,12 +23,13 @@ class User(Base):
     chapter: Mapped[Optional[Chapters]] = mapped_column(String(30))
     department: Mapped[Optional[Departments]] = mapped_column(String(30))
     position: Mapped[Positions] = mapped_column(String(30))
-    tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner", cascade="all, delete")
+    tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner", cascade="all, delete", lazy="dynamic")
+    permissions: Mapped["Permission"] = Relationship("Permission", back_populates="user", cascade="all, delete")
 
     def set_password(self, password: str) -> None:
         bytePassword = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         self.password = bytePassword.decode("utf-8")
-        return
+        return 
 
     def check_password(self, password) -> bool:
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
@@ -39,7 +40,7 @@ class User(Base):
         self.birthdate = birthdate
         self.email = email
         self.username = username
-        self.password = password
+        self.set_password(password)
         self.chapter = chapter
         self.department = department
         self.position = position
@@ -70,4 +71,25 @@ class Task(Base):
 
     def __repr__(self):
         return f"Task('{self.id}','{self.title}','{self.content}','{self.attachment}',{self.date_created}','{self.deadline}')"
- 
+
+
+class Permission(Base):
+    __tablename__ = "permissions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    view_task: Mapped[bool] = mapped_column(default=False)
+    create_task: Mapped[bool] = mapped_column(default=False)
+    modify_task: Mapped[bool] = mapped_column(default=False)
+    delete_task: Mapped[bool] = mapped_column(default=False)
+    submit_task: Mapped[bool] = mapped_column(default=False)
+    excuse_task: Mapped[bool] = mapped_column(default=False) 
+    view_user: Mapped[bool] = mapped_column(default=False)
+    confirm_user: Mapped[bool] = mapped_column(default=False)
+    modify_user: Mapped[bool] = mapped_column(default=False)
+    delete_user: Mapped[bool] = mapped_column(default=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user: Mapped[User] = Relationship("User", back_populates="permissions")
+
+    def __repr__(self):
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"MyClass({attrs})"
