@@ -24,7 +24,9 @@ class User(Base):
     department: Mapped[Optional[Departments]] = mapped_column(String(30))
     position: Mapped[Positions] = mapped_column(String(30))
     tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner", cascade="all, delete", lazy="dynamic")
+    meetings: Mapped[List["Meeting"]] = Relationship("Meetings", back_populates="owner", cascade="all, delete")
     permissions: Mapped["Permission"] = Relationship("Permission", back_populates="user", cascade="all, delete")
+
 
     def set_password(self, password: str) -> None:
         bytePassword = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -60,7 +62,7 @@ class Task(Base):
     date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow())
     deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    owner: Mapped[User] = Relationship("User", back_populates="tasks")
+    owner: Mapped[User] = Relationship(back_populates="tasks")
 
     def update(self, title: str, department: str, content: str, deadline: datetime, attachment: Optional[str] = None, **kwargs) -> None:
         self.title = title
@@ -88,8 +90,29 @@ class Permission(Base):
     modify_user: Mapped[bool] = mapped_column(default=False)
     delete_user: Mapped[bool] = mapped_column(default=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped[User] = Relationship("User", back_populates="permissions")
+    user: Mapped[User] = Relationship(back_populates="permissions")
 
     def __repr__(self):
         attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
         return f"MyClass({attrs})"
+
+
+class Meeting(Base):
+    __tablename__ = "meetings"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(255))
+    details: Mapped[str] = mapped_column(String(1000))
+    type: Mapped[str] = mapped_column(String(7))
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    location: Mapped[Optional[str]] = mapped_column(String(2000))
+    url: Mapped[Optional[str]] = mapped_column(String(255))
+    date_created: Mapped[datetime] = mapped_column(DateTime(timezone=True),default=datetime.utcnow())
+    chapter: Mapped[Optional[Chapters]]
+    department: Mapped[Optional[Departments]]
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner: Mapped[User] = Relationship(back_populates="meetings")
+
+    def __repr__(self):
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"MyClass({attrs})"
+

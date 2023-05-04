@@ -9,3 +9,4 @@ IEEE-ZSB/
 
 # Ignore databases
 *.db
+.space
