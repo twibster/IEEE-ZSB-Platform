@@ -9,4 +9,8 @@ IEEE-ZSB/
 
 # Ignore databases
 *.db
+
+# Ignore space (deployment)
 .space
+Spacefile
+.spaceignore
