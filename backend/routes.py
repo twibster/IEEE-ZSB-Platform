@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import RedirectResponse
 from backend import db
 from backend.validators import UserValidator, TaskValidator
 from backend.constants import Positions
@@ -12,7 +13,7 @@ app = FastAPI()
 
 @app.get("/")
 async def home():
-    return "welcome"
+    return RedirectResponse("/docs")
 
 
 @app.get("/users")
