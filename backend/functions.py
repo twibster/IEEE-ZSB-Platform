@@ -2,10 +2,7 @@ from typing import Optional
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
 from backend.database.models import User
-
-SECRET_KEY = "1jgRFeMmP2vlXWbzUxUlnbEey85meU4n"
-ALOGRITHM = "HS256"
-EXPIRY = 30
+from backend.config import Config
 
 
 def create_payload(user: User) -> dict:
@@ -28,7 +25,7 @@ def create_payload(user: User) -> dict:
     return payload
 
 
-def generate_token(payload: dict, expiry_duration: int = EXPIRY) -> str:
+def generate_token(payload: dict, expiry_duration: int = Config.JWT_EXPIREY) -> str:  # type: ignore
     """Generates a JSON Web Token (JWT) using the given payload and expiration duration.
 
     Args:
@@ -43,7 +40,7 @@ def generate_token(payload: dict, expiry_duration: int = EXPIRY) -> str:
         ValueError: If the payload is not a dictionary or the expiry duration is not a positive integer.
     """
     payload["exp"] = datetime.utcnow() + timedelta(minutes=expiry_duration)
-    encoded_jwt = jwt.encode(payload, SECRET_KEY, ALOGRITHM)
+    encoded_jwt = jwt.encode(payload, Config.SECRET_KEY, Config.JWT_ALGO)  # type: ignore
     return encoded_jwt
 
 
@@ -67,7 +64,7 @@ def decode_token(token: str) -> Optional[dict]:
         {'id': 1234, 'username': 'johndoe', 'exp': 1619399485}
     """
     try:
-        payload = jwt.decode(token, SECRET_KEY)
+        payload = jwt.decode(token, Config.SECRET_KEY)  # type: ignore
     except JWTError:
         return None
     return payload
