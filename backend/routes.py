@@ -1,9 +1,10 @@
 from fastapi import Depends, FastAPI, status, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from backend import db
-from backend.validators import UserValidator, LoginValidator, TaskValidator
+from backend.validators import UserValidator, TaskValidator
 from backend.constants import Positions
 from backend.database.models import User, Task
-from backend.functions import generate_token, create_payload
+from backend.functions import create_payload, generate_token, create_token_json
 from backend.dependencies import PermissionsChecker
 
 app = FastAPI()
@@ -29,14 +30,14 @@ async def register(request: UserValidator):
 
 
 @app.post("/login", status_code=status.HTTP_200_OK)
-async def login(request: LoginValidator):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = db.query(User).filter(
-        (User.email == request.username) | (User.username == request.username)
+        (User.email == form_data.username) | (User.username == form_data.username)
         ).first()
     if user:
-        if user.check_password(request.password):
-            return generate_token(create_payload(user))
-        raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, detail="Incorrect Password")
+        if user.check_password(form_data.password):
+            return create_token_json(generate_token(create_payload(user)))
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Incorrect Password")
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail='user not found')
 
 

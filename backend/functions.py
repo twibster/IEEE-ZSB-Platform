@@ -47,6 +47,10 @@ def generate_token(payload: dict, expiry_duration: int = EXPIRY) -> str:
     return encoded_jwt
 
 
+def create_token_json(encoded_jwt: str) -> dict:
+    return {"access_token": encoded_jwt, "token_type": "bearer"}
+
+
 def decode_token(token: str) -> Optional[dict]:
     """Decode a JSON Web Token (JWT) and return its payload as a dictionary.
 
