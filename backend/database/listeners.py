@@ -49,7 +49,6 @@ def add_default_permissions(mapper, connection, user: User) -> None:
 
 @event.listens_for(User.position, "set", propagate=True)
 def restore_default_permissions(user: User, value, old_value, initiator) -> None:
-    print(value, old_value)
     if value != old_value and old_value != LoaderCallableStatus.NO_VALUE:
         for permission in Permission.__table__.columns:
             if permission.default:  # check if this columns has a default value to avoid columns like id
