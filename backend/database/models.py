@@ -24,7 +24,7 @@ class User(Base):
     department: Mapped[Optional[Departments]] = mapped_column(String(30))
     position: Mapped[Positions] = mapped_column(String(30))
     tasks: Mapped[List["Task"]] = Relationship("Task", back_populates="owner", cascade="all, delete", lazy="dynamic")
-    meetings: Mapped[List["Meeting"]] = Relationship("Meetings", back_populates="owner", cascade="all, delete")
+    meetings: Mapped[List["Meeting"]] = Relationship("Meeting", back_populates="owner", cascade="all, delete")
     permissions: Mapped["Permission"] = Relationship("Permission", back_populates="user", cascade="all, delete")
 
 
