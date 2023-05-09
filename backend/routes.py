@@ -27,7 +27,7 @@ async def register(request: UserValidator):
     user.set_password(request.password)
     db.add(user)
     db.commit()
-    return generate_token(create_payload(user))
+    return create_token_json(generate_token(create_payload(user)))
 
 
 @app.post("/login", status_code=status.HTTP_200_OK)
