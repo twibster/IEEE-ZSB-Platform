@@ -1,11 +1,13 @@
 import httpx
 from fastapi import status
-from utils import generate_random_string
+from backend.tests.utils import generate_random_string
+
 
 BASE_URL = "http://localhost:8000/"
 USER_EMAIL = "teser@gmail.com"
 USER_USERNAME = "lobalizer"
 USER_PASSWORD = "tester123"
+
 
 
 def test_home():
