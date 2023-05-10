@@ -1,8 +1,10 @@
 from typing import Optional
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
-from backend.database.models import User
+from fastapi import HTTPException, status
 from backend.config import Config
+from backend.database.models import User
+
 
 
 def create_payload(user: User) -> dict:
@@ -17,15 +19,18 @@ def create_payload(user: User) -> dict:
     Raises:
         TypeError: If the user parameter is not an instance of the User class.
     """
-    payload = {
-        "id": user.id,
-        "username": user.username,
-        "role": user.position
-    }
-    return payload
+    if user:
+        payload = {
+            "id": user.id,
+            "username": user.username,
+            "role": user.position
+        }
+        return payload
+    raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, detail="invalid payload")
+    
 
 
-def generate_token(payload: dict, expiry_duration: int = Config.JWT_EXPIREY) -> str:  # type: ignore
+def generate_token(payload: dict, expiry_duration: int = Config.JWT_EXPIREY) -> str:
     """Generates a JSON Web Token (JWT) using the given payload and expiration duration.
 
     Args:
@@ -39,9 +44,15 @@ def generate_token(payload: dict, expiry_duration: int = Config.JWT_EXPIREY) -> 
     Raises:
         ValueError: If the payload is not a dictionary or the expiry duration is not a positive integer.
     """
-    payload["exp"] = datetime.utcnow() + timedelta(minutes=expiry_duration)
-    encoded_jwt = jwt.encode(payload, Config.SECRET_KEY, Config.JWT_ALGO)  # type: ignore
-    return encoded_jwt
+    if payload:
+        if isinstance(expiry_duration, int):
+            payload["exp"] = datetime.utcnow() + timedelta(minutes=expiry_duration)
+            encoded_jwt = jwt.encode(payload, Config.SECRET_KEY, Config.JWT_ALGO)  # type: ignore
+            return encoded_jwt
+        raise TypeError("expiry_duration must be of type integer")
+    raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, detail="invalid payload")
+    
+
 
 
 def create_token_json(encoded_jwt: str) -> dict:
