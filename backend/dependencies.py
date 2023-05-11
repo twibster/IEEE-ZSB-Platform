@@ -1,14 +1,25 @@
-from typing import Union
+from typing import Union, Generator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from backend import db
+from sqlalchemy.orm import Session
+from backend import SessionLocal
 from backend.functions import decode_token
 from backend.database.models import User
 
 outh2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-async def get_current_user(token: str = Depends(outh2_scheme)) -> User:
+def get_db() -> Generator:
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
+
+
+async def get_current_user(
+        db: Session = Depends(get_db), token: str = Depends(outh2_scheme)
+        ) -> User:
     """Retrieves the current user object based on the provided token.
 
     Args:
@@ -27,7 +38,8 @@ async def get_current_user(token: str = Depends(outh2_scheme)) -> User:
             return user
         raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="user in the palyload is not found"
+                detail="user in the palyload is not found",
+                headers={"WWW-Authenticate": "Bearer"}
         )
     raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

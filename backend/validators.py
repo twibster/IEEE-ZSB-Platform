@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, constr, validator
-from backend import db
-from backend.database.models import User
 from backend.constants import Positions, Chapters, Departments
 
 
@@ -30,22 +28,6 @@ class UserValidator(BaseModel):
     position: Positions
     chapter: Optional[Chapters] = None
     department: Optional[Departments] = None
-
-    @validator("email")
-    def email_already_exists(cls, v, values) -> str:
-        user = db.query(User).filter_by(email=v).first()
-        if user:
-            if values.get("id") != user.id:
-                raise ValueError("email is already in use")
-        return v
-    
-    @validator("username")
-    def username_already_exists(cls, v, values) -> str:
-        user = db.query(User).filter_by(username=v).first()
-        if user:
-            if values.get("id") != user.id:
-                raise ValueError("username is already in use")
-        return v
     
     @validator("department", always=True)
     def departmnet_logic_validator(cls, v, values) -> str:
@@ -71,7 +53,6 @@ class UserValidator(BaseModel):
             return v
         return v
     
-
     class Config:
         schema_extra = {
             "example": {

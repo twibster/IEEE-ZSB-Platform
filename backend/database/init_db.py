@@ -5,5 +5,4 @@ from backend.database.models import Base
 
 engine = create_engine(configs.DATABASE_URI)
 Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-db = Session()
+SessionLocal = sessionmaker(bind=engine)

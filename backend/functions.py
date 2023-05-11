@@ -52,8 +52,6 @@ def generate_token(payload: dict, expiry_duration: int = configs.JWT_EXPIREY) ->
     raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, detail="invalid payload")
     
 
-
-
 def create_token_json(encoded_jwt: str) -> dict:
     return {"access_token": encoded_jwt, "token_type": "bearer"}
 

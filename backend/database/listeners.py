@@ -1,8 +1,9 @@
+from fastapi import Depends
 from sqlalchemy import event
 from sqlalchemy.orm import LoaderCallableStatus, Session
 from backend.database.models import Permission, User
 from backend.constants import Positions
-from backend import db
+from backend.dependencies import get_db
 
 default_permissions = {
     Positions.CHAIRMAN: {
@@ -38,7 +39,9 @@ default_permissions = {
 
 
 @event.listens_for(User, "after_insert")
-def add_default_permissions(mapper, connection, user: User) -> None:
+def add_default_permissions(
+            mapper, connection, user: User, db: Session = Depends(get_db)
+        ) -> None:
     permissions = Permission(**default_permissions[user.position])
 
     @event.listens_for(Session, "after_flush")  # do the relatedObject creation after flushing to avoid warnings
@@ -48,7 +51,7 @@ def add_default_permissions(mapper, connection, user: User) -> None:
 
 
 @event.listens_for(User.position, "set", propagate=True)
-def restore_default_permissions(user: User, value, old_value, initiator) -> None:
+def restore_default_permissions(user: User, value, old_value, _) -> None:
     if value != old_value and old_value != LoaderCallableStatus.NO_VALUE:
         for permission in Permission.__table__.columns:
             if permission.default:  # check if this columns has a default value to avoid columns like id
