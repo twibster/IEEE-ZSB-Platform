@@ -2,9 +2,8 @@ from typing import Optional
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
 from fastapi import HTTPException, status
-from backend.config import Config
+from backend.config import configs
 from backend.database.models import User
-
 
 
 def create_payload(user: User) -> dict:
@@ -30,7 +29,7 @@ def create_payload(user: User) -> dict:
     
 
 
-def generate_token(payload: dict, expiry_duration: int = Config.JWT_EXPIREY) -> str:
+def generate_token(payload: dict, expiry_duration: int = configs.JWT_EXPIREY) -> str:
     """Generates a JSON Web Token (JWT) using the given payload and expiration duration.
 
     Args:
@@ -47,7 +46,7 @@ def generate_token(payload: dict, expiry_duration: int = Config.JWT_EXPIREY) -> 
     if payload:
         if isinstance(expiry_duration, int):
             payload["exp"] = datetime.utcnow() + timedelta(minutes=expiry_duration)
-            encoded_jwt = jwt.encode(payload, Config.SECRET_KEY, Config.JWT_ALGO)  # type: ignore
+            encoded_jwt = jwt.encode(payload, configs.SECRET_KEY, configs.JWT_ALGO)  # type: ignore
             return encoded_jwt
         raise TypeError("expiry_duration must be of type integer")
     raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, detail="invalid payload")
@@ -75,7 +74,7 @@ def decode_token(token: str) -> Optional[dict]:
         {'id': 1234, 'username': 'johndoe', 'exp': 1619399485}
     """
     try:
-        payload = jwt.decode(token, Config.SECRET_KEY)  # type: ignore
+        payload = jwt.decode(token, configs.SECRET_KEY)  # type: ignore
     except JWTError:
         return None
     return payload

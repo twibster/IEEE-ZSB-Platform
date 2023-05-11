@@ -1,19 +1,24 @@
-import os
 from typing import Union
+from pydantic import BaseSettings, validator
 
 
-class Config:
-    DATABASE_URI: str = os.environ.get("DATABASE_URI", "sqlite:///platform.db")
-    SECRET_KEY: Union[str, None] = os.environ.get("SECRET_KEY")
-    JWT_ALGO: str = os.environ.get("JWT_ALGO", "HS256")
-    JWT_EXPIREY: int = int(os.environ.get("JWT_EXPIREY", 30))
+class Config(BaseSettings):
+    DATABASE_URI: str = "sqlite:///platform.db"
+    SECRET_KEY: Union[str, None]
+    JWT_ALGO: str = "HS256"
+    JWT_EXPIREY: int = 30
 
-    @classmethod
-    def validate_variables(cls) -> None:
-        if not cls.SECRET_KEY:
+    @validator("SECRET_KEY")
+    def validate_secret_key(cls, v: str) -> str:
+        if not v:
             raise ValueError("A secret key must be present in the enviornment variables")
-        if cls.JWT_ALGO not in ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512']:
+        return v
+    
+    @validator("JWT_ALGO")
+    def validate_JWT_ALGO(cls, v: str) -> str:
+        if v not in ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512']:
             raise ValueError("Not a valid JWT algorithm")
+        return v
+    
 
-
-Config.validate_variables()
+configs = Config()
