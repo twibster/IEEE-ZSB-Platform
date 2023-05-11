@@ -2,7 +2,6 @@ from fastapi import Depends, FastAPI, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from backend import SessionLocal
 from backend.validators import UserValidator, TaskValidator
 from backend.constants import Positions
 from backend.database.models import User, Task
