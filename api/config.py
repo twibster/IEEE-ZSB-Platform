@@ -11,7 +11,7 @@ class Config(BaseSettings):
     @validator("SECRET_KEY")
     def validate_secret_key(cls, v: str) -> str:
         if not v:
-            raise ValueError("A secret key must be present in the enviornment variables")
+            raise ValueError("A 'SECRET_KEY' must be present in the enviornment variables")
         return v
     
     @validator("JWT_ALGO")
