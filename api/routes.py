@@ -11,19 +11,19 @@ from api.depend import PermissionsChecker, get_db
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/", tags=["home"])
 async def home():
     return RedirectResponse("/docs")
 
 
-@app.get("/users")
+@app.get("/users", tags=["users"])
 async def users(
         db: Session = Depends(get_db),
         _: User = Depends(PermissionsChecker("view_user"))):
     return db.query(User).all()
 
 
-@app.post("/register", status_code=status.HTTP_201_CREATED)
+@app.post("/register", tags=["users"], status_code=status.HTTP_201_CREATED)
 async def register(
         request: UserValidator,
         db: Session = Depends(get_db)):
@@ -34,7 +34,7 @@ async def register(
     return create_token_json(generate_token(create_payload(user)))
 
 
-@app.post("/login", status_code=status.HTTP_200_OK)
+@app.post("/login", tags=["users"], status_code=status.HTTP_200_OK)
 async def login(
         form_data: OAuth2PasswordRequestForm = Depends(),
         db: Session = Depends(get_db)):
@@ -48,7 +48,7 @@ async def login(
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail='user not found')
 
 
-@app.delete("/delete_user/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/delete_user/{user_id}", tags=["users"], status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
         user_id: int,
         _:User = Depends(PermissionsChecker("delete_user")),
@@ -61,7 +61,7 @@ async def delete_user(
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail="user not found")
 
 
-@app.put("/modify_user/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.put("/modify_user/{user_id}", tags=["users"], status_code=status.HTTP_204_NO_CONTENT)
 async def modify_user(
         user_id: int,
         request: UserValidator,
@@ -78,7 +78,7 @@ async def modify_user(
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail="user not found")
 
 
-@app.post("/create_task", status_code=status.HTTP_201_CREATED)
+@app.post("/create_task", tags=["tasks"], status_code=status.HTTP_201_CREATED)
 async def create_task(
         request: TaskValidator,
         user: User = Depends(PermissionsChecker("create_task")),
@@ -93,7 +93,7 @@ async def create_task(
     return
 
 
-@app.get("/tasks")
+@app.get("/tasks", tags=["tasks"])
 async def get_tasks(
         db: Session = Depends(get_db),
         _: User = Depends(PermissionsChecker("view_task"))
@@ -101,7 +101,7 @@ async def get_tasks(
     return db.query(Task).all()
 
          
-@app.put("/modify_task/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.put("/modify_task/{task_id}", tags=["tasks"], status_code=status.HTTP_204_NO_CONTENT)
 async def modify_task(
         task_id: int,
         request: TaskValidator,
@@ -120,7 +120,7 @@ async def modify_task(
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail="task not found")
     
 
-@app.delete('/delete_task/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
+@app.delete('/delete_task/{task_id}', tags=["tasks"], status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(
         task_id: int,
         user: User = Depends(PermissionsChecker("delete_task")),
