@@ -74,19 +74,6 @@ class UserValidator(BaseModel):
         }
 
 
-class LoginValidator(BaseModel):
-    username: str
-    password: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "username": "jsxht",
-                "password": "string"
-            }
-        }
-
-
 class TaskValidator(BaseModel):
     id: Optional[int] = Field(gt=0)
     title: str = Field(min_length=3, max_length=50)
