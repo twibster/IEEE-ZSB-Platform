@@ -28,7 +28,6 @@ def create_payload(user: User) -> dict:
     raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, detail="invalid payload")
     
 
-
 def generate_token(payload: dict, expiry_duration: int = configs.JWT_EXPIREY) -> str:
     """Generates a JSON Web Token (JWT) using the given payload and expiration duration.
 
