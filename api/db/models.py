@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List
 from sqlalchemy import String, DateTime, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Relationship
-from backend.constants import Chapters, Positions, Departments
+from api.const import Chapters, Positions, Departments
 
 
 class Base(DeclarativeBase):

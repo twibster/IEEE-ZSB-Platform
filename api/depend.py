@@ -2,9 +2,9 @@ from typing import Union, Generator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from backend import SessionLocal
-from backend.functions import decode_token
-from backend.database.models import User
+from api.functions import decode_token
+from api.db.models import User
+from api.db.init_db import SessionLocal
 
 outh2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 

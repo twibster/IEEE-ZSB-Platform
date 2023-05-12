@@ -6,8 +6,7 @@ from pydantic import (
     validator)
 from datetime import datetime
 from typing import Optional
-
-from backend.constants import Positions, Chapters, Departments
+from api.const import Positions, Chapters, Departments
 
 
 class UserValidator(BaseModel):

@@ -1,6 +1,6 @@
 import httpx
 from fastapi import status
-from backend.tests.utils import generate_random_string
+from api.tests.utils import generate_random_string
 
 
 BASE_URL = "http://localhost:8000/"

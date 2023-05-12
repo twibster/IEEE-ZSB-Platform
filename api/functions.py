@@ -2,8 +2,8 @@ from typing import Optional
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
 from fastapi import HTTPException, status
-from backend.config import configs
-from backend.database.models import User
+from api.config import configs
+from api.db.models import User
 
 
 def create_payload(user: User) -> dict:

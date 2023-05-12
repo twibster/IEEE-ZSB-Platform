@@ -1,6 +1,10 @@
 import pytest
 from fastapi import HTTPException, status
-from backend.functions import decode_token, generate_token, create_payload, create_token_json
+from api.functions import (
+    decode_token,
+    generate_token,
+    create_payload,
+    create_token_json)
 
 
 class Payload:

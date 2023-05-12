@@ -7,10 +7,10 @@ without a listneer (adding the permissions excplicitly in the logic): 8.4 second
 """
 
 import datetime
-from backend.constants import default_permissions
-from backend.database.models import User, Permission
-from backend.tests.utils import generate_random_string
-from backend.database.init_db import SessionLocal
+from api.const import default_permissions
+from api.db.models import User, Permission
+from api.tests.utils import generate_random_string
+from api.db.init_db import SessionLocal
 
 
 def generate_user(email: str, username: str) -> dict:

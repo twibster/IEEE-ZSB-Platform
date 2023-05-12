@@ -1,7 +1,7 @@
 from sqlalchemy import event
 from sqlalchemy.orm import LoaderCallableStatus, Session
-from backend.database.models import Permission, User
-from backend.constants import default_permissions
+from api.const import default_permissions
+from api.db.models import Permission, User
 
 
 @event.listens_for(Session, "after_flush")  
