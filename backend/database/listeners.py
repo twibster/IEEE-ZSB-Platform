@@ -1,63 +1,27 @@
 from sqlalchemy import event
 from sqlalchemy.orm import LoaderCallableStatus, Session
 from backend.database.models import Permission, User
-from backend.constants import Positions
-
-default_permissions = {
-    Positions.CHAIRMAN: {
-        'view_task': True,
-        'create_task': True,
-        'modify_task': True,
-        'delete_task': True,
-        'view_user': True,
-        'confirm_user': True,
-        'modify_user': True,
-        'delete_user': True
-    },
-    Positions.LEADER: {
-        'view_task': True,
-        'create_task': True,
-        'modify_task': True,
-        'delete_task': True,
-        'modify_user': True
-    },
-    Positions.MEMBER: {
-        'view_task': True,
-        'submit_task': True,
-        'excuse_task': True,
-        'modify_user': True
-    },
-    Positions.ROOKIE: {
-        'view_task': True,
-        'submit_task': True,
-        'excuse_task': True,
-        'modify_user': True
-    }
-}
+from backend.constants import default_permissions
 
 
-@event.listens_for(User, "after_insert")
-def add_default_permissions(mapper, connection, user: User) -> None:
-    permissions = Permission(**default_permissions[user.position])
-
-    # do the relatedObject creation after flushing to avoid warnings
-    @event.listens_for(Session, "after_flush")  
-    def create_relationship(session, context) -> None:
-        permissions.user = user
-        session.add(permissions)
+@event.listens_for(Session, "after_flush")  
+def create_relationship(session, context) -> None:
+    for obj in session.new:
+        if isinstance(obj, User):
+            permissions = Permission(**default_permissions[obj.position])
+            permissions.user = obj
+            session.add(permissions)        
 
 
 @event.listens_for(User.position, "set", propagate=True)
 def restore_default_permissions(
-        user: User, value, old_value, initiator
+        user: User, position, old_position, initiator
         ) -> None:
-    if value != old_value and old_value != LoaderCallableStatus.NO_VALUE:
+    if (position != old_position and
+        old_position != LoaderCallableStatus.NO_VALUE):
         for permission in Permission.__table__.columns:
-            # check if this columns has a default value to avoid columns like id
+            # check if this columns has a default position to avoid columns like id
             if permission.default:  
-                default_permission = default_permissions[value].get(permission.name)
-                if default_permission:
-                    setattr(user.permissions, permission.name, default_permission)
-                else:
-                    setattr(user.permissions, permission.name, permission.default.arg)
-                
+                default_permission = default_permissions[position].get(permission.name)
+                default_permission = default_permission if default_permission else permission.default.arg
+                setattr(user.permissions, permission.name, default_permission)

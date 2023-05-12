@@ -21,3 +21,36 @@ class Departments(str, Enum):
     WEB = "web"
     POWER = "power"
     DISTRIBUTION = "distribution"
+
+
+default_permissions = {
+    Positions.CHAIRMAN: {
+        'view_task': True,
+        'create_task': True,
+        'modify_task': True,
+        'delete_task': True,
+        'view_user': True,
+        'confirm_user': True,
+        'modify_user': True,
+        'delete_user': True
+    },
+    Positions.LEADER: {
+        'view_task': True,
+        'create_task': True,
+        'modify_task': True,
+        'delete_task': True,
+        'modify_user': True
+    },
+    Positions.MEMBER: {
+        'view_task': True,
+        'submit_task': True,
+        'excuse_task': True,
+        'modify_user': True
+    },
+    Positions.ROOKIE: {
+        'view_task': True,
+        'submit_task': True,
+        'excuse_task': True,
+        'modify_user': True
+    }
+}
