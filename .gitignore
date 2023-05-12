@@ -1,5 +1,5 @@
 # Ignore the virtual environment directory
-IEEE-ZSB/
+.venv/
 
 # Ignore compiled Python files
 *.pyc
