@@ -7,6 +7,7 @@ from pydantic import (
 from datetime import datetime
 from typing import Optional
 from api.const import Positions, Chapters, Departments
+from api.db.crud import get_by_email, get_by_username
 
 
 class UserValidator(BaseModel):
@@ -33,7 +34,21 @@ class UserValidator(BaseModel):
     position: Positions
     chapter: Optional[Chapters] = None
     department: Optional[Departments] = None
-    
+
+    @validator("email")
+    def email_exists_validator(cls, v) -> str:
+        user = get_by_email(v)
+        if user:
+            raise ValueError("this email is already in use")
+        return v
+
+    @validator("username")
+    def username_exists_validator(cls, v) -> str:
+        user = get_by_username(v)
+        if user:
+            raise ValueError("this username is already in use")
+        return v
+
     @validator("department", always=True)
     def departmnet_logic_validator(cls, v, values) -> str:
         position = values.get('position')
@@ -57,7 +72,7 @@ class UserValidator(BaseModel):
                     raise ValueError(f"you must provide a chapter if the position is {position}")
             return v
         return v
-    
+ 
     class Config:
         schema_extra = {
             "example": {

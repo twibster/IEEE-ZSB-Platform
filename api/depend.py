@@ -1,4 +1,4 @@
-from typing import Union, Generator
+from typing import Generator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -31,9 +31,9 @@ async def get_current_user(
     Raises:
         HTTPException: If the token is invalid or expired, or if the user cannot be found.
     """
-    payload: Union[dict, None] = decode_token(token)
+    payload: dict | None = decode_token(token)
     if payload:
-        user: Union[User, None] = db.query(User).filter_by(id=payload.get("id")).first()
+        user: User | None = db.query(User).filter_by(id=payload.get("id")).first()
         if user:
             return user
         raise HTTPException(

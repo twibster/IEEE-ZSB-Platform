@@ -1,10 +1,9 @@
-from typing import Union
 from pydantic import BaseSettings, validator
 
 
 class Config(BaseSettings):
     DATABASE_URI: str = "sqlite:///platform.db"
-    SECRET_KEY: Union[str, None]
+    SECRET_KEY: str | None
     JWT_ALGO: str = "HS256"
     JWT_EXPIREY: int = 30
 

@@ -27,7 +27,6 @@ class User(Base):
     meetings: Mapped[List["Meeting"]] = Relationship("Meeting", back_populates="owner", cascade="all, delete")
     permissions: Mapped["Permission"] = Relationship("Permission", back_populates="user", cascade="all, delete")
 
-
     def set_password(self, password: str) -> None:
         bytePassword = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         self.password = bytePassword.decode("utf-8")
