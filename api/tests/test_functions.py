@@ -16,6 +16,7 @@ class Payload:
 
 PAYLOAD = Payload(2, "tester", "tester_role")
 
+
 def test_payload_for_jwt(payload: Payload = PAYLOAD):
     assert create_payload(payload) == {  # type: ignore
         "id": payload.id,
@@ -42,8 +43,8 @@ def test_generate_token():
 def test_create_token_json():
     assert create_token_json("test") == {"access_token": "test", "token_type": "bearer"}
 
+
 def test_decode_token():
     assert decode_token("not_a_token") == None
     payload = {"test": "test"}
     assert decode_token(generate_token(payload)) == payload
-    
