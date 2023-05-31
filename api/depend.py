@@ -52,7 +52,7 @@ class PermissionsChecker:
     """A class used to check a user's permission and grant access to a specific endpoint.
 
     Attributes:
-        requiredPermission (str): The required permission for accessing an endpoint.
+        required_permission (str): The required permission for accessing an endpoint.
 
     Methods:
         __init__(self, requiredPermission: str) -> None: Initializes the required Permission for the endpoint.

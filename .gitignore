@@ -4,9 +4,9 @@
 # Ignore compiled Python files
 *.pyc
 
-# Ignore vscode directory
+# Ignore IDE & VSCODE directory
 .vscode/
-
+.idea/
 # Ignore databases
 *.db
 
